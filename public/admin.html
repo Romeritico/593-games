@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin — 593games</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/styles.css" />
+<style>
+  .admin-wrap { max-width: 560px; margin: 0 auto; padding: 60px 24px 100px; }
+  .admin-card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow-soft); }
+  .admin-card label { display: block; font-weight: 600; margin: 16px 0 6px; font-size: 0.9rem; color: var(--ink-soft); }
+  .admin-card input, .admin-card select { width: 100%; padding: 12px 14px; border-radius: 8px; border: 1.5px solid var(--line); font-family: var(--font-body); font-size: 1rem; }
+  .admin-card button { margin-top: 24px; width: 100%; padding: 14px; border: none; border-radius: 8px; background: var(--teal); color: #fff; font-weight: 700; font-family: var(--font-display); cursor: pointer; }
+  .admin-card button:hover { background: var(--teal-dark); }
+  #admin-result { margin-top: 16px; font-weight: 600; font-size: 0.9rem; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<div class="admin-wrap">
+  <h1 style="margin-bottom: 24px;">Panel interno — subir juego</h1>
+  <div class="admin-card">
+    <form id="admin-form">
+      <label for="admin-secret">Clave de administrador (ADMIN_SECRET)</label>
+      <input id="admin-secret" type="password" required />
+
+      <label for="codigo">Código único del juego</label>
+      <input id="codigo" type="text" required />
+
+      <label for="nombre">Nombre del juego</label>
+      <input id="nombre" type="text" required />
+
+      <label for="etiqueta">Etiqueta</label>
+      <select id="etiqueta">
+        <option value="Para negocios">Para negocios</option>
+        <option value="Entretenimiento">Entretenimiento</option>
+      </select>
+
+      <label for="demoUrl">URL de imagen/video para la galería (opcional)</label>
+      <input id="demoUrl" type="text" placeholder="https://..." />
+
+      <label for="archivo">Archivo del juego (.html o .pdf)</label>
+      <input id="archivo" type="file" accept=".html,.htm,.pdf" required />
+
+      <button type="submit">Subir juego</button>
+    </form>
+    <div id="admin-result"></div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("admin-form");
+  const result = document.getElementById("admin-result");
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(",")[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    result.textContent = "Subiendo…";
+
+    const archivo = document.getElementById("archivo").files[0];
+    if (!archivo) return;
+
+    try {
+      const archivoBase64 = await fileToBase64(archivo);
+      const res = await fetch("/api/admin/juegos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-secret": document.getElementById("admin-secret").value,
+        },
+        body: JSON.stringify({
+          codigo: document.getElementById("codigo").value.trim(),
+          nombre: document.getElementById("nombre").value.trim(),
+          etiqueta: document.getElementById("etiqueta").value,
+          demoUrl: document.getElementById("demoUrl").value.trim() || null,
+          nombreArchivo: archivo.name,
+          archivoBase64,
+        }),
+      });
+      const data = await res.json();
+      result.textContent = res.ok
+        ? `Juego creado correctamente. Código: ${data.codigo}`
+        : `Error: ${data.error}`;
+    } catch (err) {
+      result.textContent = "Error de conexión al subir el juego.";
+    }
+  });
+</script>
+</body>
+</html>

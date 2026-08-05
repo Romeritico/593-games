@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>593games — Juegos para fidelizar clientes</title>
+<meta name="description" content="Plataforma de juegos digitales de marketing y fidelización para negocios locales. Bingo, trivia, ruleta y más. Sin apuestas, sin dinero real." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-glow" aria-hidden="true"></div>
+  <div class="wrap header-inner">
+    <div class="brand">
+      <p class="brand-mark">593<span>games</span></p>
+      <p class="brand-sub">Juegos para fidelizar clientes y potenciar tu negocio</p>
+    </div>
+    <span class="badge-safe">🎉 Entretenimiento y marketing — SIN apuestas</span>
+  </div>
+</header>
+
+<main>
+
+  <section class="wrap gallery-section" id="galeria">
+    <div class="section-heading">
+      <h2>Catálogo de juegos</h2>
+      <p>Dinámicas listas para usar en tu local, tus redes o tus eventos.</p>
+    </div>
+
+    <div id="gallery-grid" class="gallery-grid" aria-live="polite">
+      <div class="skel-card"></div>
+      <div class="skel-card"></div>
+      <div class="skel-card"></div>
+    </div>
+  </section>
+
+  <section class="wrap download-section" id="descarga">
+    <div class="download-card">
+      <div class="download-deco" aria-hidden="true"></div>
+      <h2>¿Ya tienes tu código?</h2>
+      <p class="download-lead">Descarga tu juego aquí</p>
+
+      <form id="download-form" class="download-form" novalidate>
+        <label for="codigo-input" class="visually-hidden">Código del juego</label>
+        <input
+          id="codigo-input"
+          name="codigo"
+          type="text"
+          inputmode="text"
+          autocomplete="off"
+          placeholder="Ingresa tu código aquí"
+          class="codigo-input"
+        />
+        <button type="submit" class="btn-download" id="download-btn">
+          <span class="btn-label">Descargar mi juego</span>
+          <span class="btn-spinner" hidden aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <div id="form-message" class="form-message" role="status"></div>
+
+      <p class="download-hint">Tu código fue entregado por el negocio donde adquiriste el servicio.</p>
+    </div>
+  </section>
+
+  <section class="wrap info-section" id="info">
+    <div class="info-copy">
+      <h2>¿Qué es 593games?</h2>
+      <p>
+        Somos una plataforma de juegos digitales diseñada para ayudar a negocios locales a fidelizar clientes.
+        Nuestros juegos (bingo, trivia, ruletas, memorama, etc.) son herramientas de marketing y entretenimiento
+        para eventos, promociones y dinámicas grupales. <strong>NO involucran apuestas ni dinero real.</strong>
+      </p>
+    </div>
+
+    <div class="info-pillars">
+      <div class="pillar">
+        <span class="pillar-icon" aria-hidden="true">🎯</span>
+        <p>Marketing</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-icon" aria-hidden="true">🤝</span>
+        <p>Fidelización</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-icon" aria-hidden="true">🎲</span>
+        <p>Entretenimiento</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p class="footer-copy">© 2026 593games — Entretenimiento y marketing para negocios</p>
+    <p class="footer-disclaimer">
+      593games ofrece juegos exclusivamente para fines de entretenimiento, marketing y fidelización de clientes.
+      Ninguno de nuestros juegos involucra apuestas, dinero real o juegos de azar. Los premios o incentivos son
+      gestionados directamente por cada negocio como parte de sus estrategias comerciales.
+    </p>
+    <div class="footer-links">
+      <a href="/terminos.html">Términos de uso</a>
+      <span aria-hidden="true">·</span>
+      <a href="mailto:hola@593games.com">Contacto</a>
+    </div>
+  </div>
+</footer>
+
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

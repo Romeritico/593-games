@@ -1,0 +1,129 @@
+{
+  "version": "8",
+  "dialect": "postgres",
+  "id": "19bd35f5-927c-4426-bd69-6ea8b38ae488",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
+  "ddl": [
+    {
+      "isRlsEnabled": false,
+      "name": "juegos",
+      "entityType": "tables",
+      "schema": "public"
+    },
+    {
+      "type": "uuid",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "gen_random_uuid()",
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "juegos"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "codigo",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "juegos"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "nombre",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "juegos"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "archivo_key",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "juegos"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "demo_url",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "juegos"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'Entretenimiento'",
+      "generated": null,
+      "identity": null,
+      "name": "etiqueta",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "juegos"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": "now()",
+      "generated": null,
+      "identity": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "juegos"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "juegos_pkey",
+      "schema": "public",
+      "table": "juegos",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "codigo"
+      ],
+      "nullsNotDistinct": false,
+      "name": "juegos_codigo_key",
+      "schema": "public",
+      "table": "juegos",
+      "entityType": "uniques"
+    }
+  ],
+  "renames": []
+}

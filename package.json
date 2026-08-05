@@ -1,0 +1,15 @@
+{
+  "name": "593games",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Plataforma de juegos digitales para marketing y fidelizacion de clientes de negocios locales.",
+  "dependencies": {
+    "@netlify/blobs": "^10.7.12",
+    "@netlify/database": "^1.1.0",
+    "@netlify/functions": "^5.3.0",
+    "drizzle-orm": "^1.0.0-beta.22"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^1.0.0-beta.22"
+  }
+}
