@@ -117,15 +117,19 @@ async function consultarCodigoBingo(codigo) {
 // DESCARGA DESDE STORAGE
 // ==========================================
 async function descargarCarton(numeroCarton) {
+  console.log('📥 Iniciando descarga del cartón:', numeroCarton);
   const fileName = `carton_${numeroCarton}.html`;
-  const { data, error } = await supabase
-    .storage
-    .from('tablas')
-    .download(fileName);
+  console.log('📁 Archivo a descargar:', fileName);
+  console.log('🗂️ Bucket de Storage: tablas');
+  
+  const { data, error } = await supabase.storage.from('tablas').download(fileName);
   
   if (error) {
+    console.error('❌ Error descargando archivo:', error);
     throw new Error(`Error descargando archivo: ${error.message}`);
   }
+  
+  console.log('✅ Archivo descargado exitosamente');
   
   try {
     // Crear blob y descargar con headers correctos
