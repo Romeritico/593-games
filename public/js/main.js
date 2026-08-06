@@ -164,8 +164,7 @@ async function descargarCarton(numeroCarton) {
     }
     
     console.log('✅ Archivo descargado exitosamente');
-  
-  try {
+    
     // Crear blob y descargar con headers correctos
     const blob = new Blob([data], { type: 'text/html; charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
@@ -184,6 +183,7 @@ async function descargarCarton(numeroCarton) {
     document.body.removeChild(a);
     
     return { success: true };
+    
   } catch (error) {
     console.error('Error en descarga:', error);
     throw error;
