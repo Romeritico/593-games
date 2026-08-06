@@ -381,10 +381,22 @@ downloadForm.addEventListener("submit", async (event) => {
     // Intentar usar url_tabla si está disponible, sino usar formato doble con guion
     let fileNameFromDB = null;
     if (codigoData.url_tabla) {
-      // Extraer solo el nombre del archivo de la URL completa
-      // url_tabla podría tener formato: "carton_1-1.html" o ruta completa
-      fileNameFromDB = codigoData.url_tabla.split('/').pop();
-      console.log('📁 Nombre de archivo desde url_tabla:', fileNameFromDB);
+      console.log('📁 url_tabla original:', codigoData.url_tabla);
+      
+      // Detectar si url_tabla tiene el formato incorrecto "https://supabase.co_X-X.html"
+      if (codigoData.url_tabla.includes('supabase.co_')) {
+        // Extraer el número después de "supabase.co_"
+        const numeroExtraido = codigoData.url_tabla.split('supabase.co_')[1];
+        if (numeroExtraido) {
+          // Construir el nombre correcto del archivo
+          fileNameFromDB = `carton_${numeroExtraido}`;
+          console.log('📁 Nombre corregido desde url_tabla:', fileNameFromDB);
+        }
+      } else {
+        // Si tiene formato normal, extraer solo el nombre del archivo
+        fileNameFromDB = codigoData.url_tabla.split('/').pop();
+        console.log('📁 Nombre normal desde url_tabla:', fileNameFromDB);
+      }
     }
     
     setMessage("Descargando tu juego...", "success");
