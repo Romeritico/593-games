@@ -1,8 +1,8 @@
 // ==========================================
 // CONFIGURACIÓN DE SUPABASE
 // ==========================================
-const SUPABASE_URL = 'https://pchhkvsfnqmtclwjzkvc.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_sGq6SIuJg1f0PQut1BvLFg_CuPTh8TL';
+const SUPABASE_URL = "https://pchhkvsfnqmtclwjzkvc.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_sGq6SIuJg1f0PQut1BvLFg_CuPTh8TL";
 
 // ==========================================
 // SISTEMA DE SEGURIDAD CONTRA FUERZA BRUTA
