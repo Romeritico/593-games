@@ -122,14 +122,48 @@ async function descargarCarton(numeroCarton) {
   console.log('📁 Archivo a descargar:', fileName);
   console.log('🗂️ Bucket de Storage: tablas');
   
-  const { data, error } = await supabase.storage.from('tablas').download(fileName);
-  
-  if (error) {
-    console.error('❌ Error descargando archivo:', error);
-    throw new Error(`Error descargando archivo: ${error.message}`);
-  }
-  
-  console.log('✅ Archivo descargado exitosamente');
+  try {
+    // Primero verificar si el archivo existe listando el bucket
+    const { data: files, error: listError } = await supabase
+      .storage
+      .from('tablas')
+      .list('', {
+        limit: 100,
+        offset: 0,
+        sortBy: { column: 'name', order: 'asc' }
+      });
+    
+    if (listError) {
+      console.error('❌ Error listando bucket:', listError);
+      console.error('Esto podría indicar problema con permisos RLS o bucket inexistente');
+    } else {
+      console.log('📋 Archivos en bucket tablas:', files.map(f => f.name));
+      const fileExists = files.some(f => f.name === fileName);
+      
+      if (!fileExists) {
+        console.error(`❌ El archivo ${fileName} NO existe en el bucket 'tablas'`);
+        console.error('📝 Archivos disponibles:', files.map(f => f.name).join(', '));
+        throw new Error(`El archivo ${fileName} no existe en el bucket de Storage. Por favor verifica que el archivo haya sido subido correctamente.`);
+      }
+    }
+    
+    // Intentar descargar el archivo
+    const { data, error } = await supabase.storage.from('tablas').download(fileName);
+    
+    if (error) {
+      console.error('❌ Error descargando archivo:', error);
+      console.error('Código de error:', error.message);
+      
+      if (error.message.includes('Object not found')) {
+        throw new Error(`El archivo ${fileName} no existe en el bucket 'tablas'. Verifica que los archivos hayan sido subidos correctamente al Storage de Supabase.`);
+      } else if (error.message.includes('permission')) {
+        throw new Error('Error de permisos. Verifica las políticas RLS del bucket "tablas" para permitir lectura pública.');
+      }
+      
+      throw new Error(`Error descargando archivo: ${error.message}`);
+    }
+    
+    console.log('✅ Archivo descargado exitosamente');
   
   try {
     // Crear blob y descargar con headers correctos
@@ -256,30 +290,15 @@ function updateBlockCounter() {
 }
 
 // ==========================================
-// CARGA DE GALERÍA (Manteniendo función original pero con fallback)
+// CARGA DE GALERÍA (Simplificada para Vercel)
 // ==========================================
 async function loadGallery() {
-  try {
-    // Intentar cargar desde la API original de Netlify
-    const res = await fetch("/api/juegos");
-    if (!res.ok) throw new Error("No se pudo cargar el catálogo.");
-    const juegosList = await res.json();
-
-    galleryGrid.innerHTML = "";
-
-    if (!Array.isArray(juegosList) || juegosList.length === 0) {
-      galleryGrid.innerHTML = `<div class="gallery-empty">Muy pronto vas a ver aquí nuestros juegos disponibles.</div>`;
-      return;
-    }
-
-    juegosList.forEach((juego, i) => {
-      galleryGrid.appendChild(renderGameCard(juego, i));
-    });
-  } catch (err) {
-    // Si falla la API, mostrar mensaje amigable
-    galleryGrid.innerHTML = `<div class="gallery-empty">Muy pronto vas a ver aquí nuestros juegos disponibles.</div>`;
-    console.log('Galería no disponible - esto es normal si no hay backend configurado');
-  }
+  console.log('🖼️ Cargando galería de juegos...');
+  
+  // En Vercel no tenemos la API /api/juegos configurada, así que mostramos mensaje amigable
+  // Esta funcionalidad requiere configuración de backend en Vercel (API Routes)
+  galleryGrid.innerHTML = `<div class="gallery-empty">Muy pronto vas a ver aquí nuestros juegos disponibles.</div>`;
+  console.log('ℹ️ Galería deshabilitada - requiere configuración de API Routes en Vercel');
 }
 
 // ==========================================
@@ -429,21 +448,76 @@ async function verificarEstructuraBD() {
   console.log('🔍 Verificando estructura de la base de datos...');
   
   try {
-    // Intentar listar todas las tablas disponibles
-    const { data: tables, error: tablesError } = await supabase
-      .rpc('get_tables');
-    
-    if (tablesError) {
-      console.log('⚠️ No se pudo listar tablas (posiblemente por permisos)');
-    } else {
-      console.log('📋 Tablas disponibles:', tables);
-    }
-    
-    // Verificar si la tabla codigos_bingo existe haciendo una consulta
+    // Verificar si la tabla codigos_bingo existe haciendo una consulta directa
     const { data: sampleData, error: sampleError } = await supabase
       .from('codigos_bingo')
       .select('*')
       .limit(1);
+    
+    if (sampleError) {
+      console.error('❌ Error al acceder a tabla codigos_bingo:', sampleError);
+      
+      if (sampleError.code === '42P01') {
+        console.error('❌ La tabla "codigos_bingo" NO existe. Debes crearla en Supabase.');
+        console.error('📝 Estructura sugerida:');
+        console.error('   - id (serial, primary key)');
+        console.error('   - codigo_mostrador (text, unique)');
+        console.error('   - numero_carton (text)');
+        console.error('   - cliente_id (integer, foreign key)');
+        console.error('   - fecha_expiracion (timestamp, opcional)');
+      }
+    } else {
+      console.log('✅ Tabla codigos_bingo existe y es accesible');
+      console.log('📊 Estructura de registro de ejemplo:', sampleData);
+    }
+    
+    // Verificar el bucket de Storage
+    console.log('🗂️ Verificando bucket de Storage...');
+    const { data: buckets, error: bucketsError } = await supabase
+      .storage
+      .listBuckets();
+    
+    if (bucketsError) {
+      console.error('❌ Error al listar buckets:', bucketsError);
+    } else {
+      console.log('📋 Buckets disponibles:', buckets.map(b => b.name));
+      const tablasBucket = buckets.find(b => b.name === 'tablas');
+      
+      if (!tablasBucket) {
+        console.error('❌ El bucket "tablas" NO existe en Storage');
+        console.error('📝 Debes crear el bucket "tablas" en Supabase Storage');
+        console.error('📝 Ejecuta el script SQL proporcionado para crearlo');
+      } else {
+        console.log('✅ Bucket "tablas" existe');
+        console.log('📢 ¿Es público?', tablasBucket.public ? 'Sí ✅' : 'No ❌ (debe ser público)');
+        
+        if (!tablasBucket.public) {
+          console.error('❌ El bucket "tablas" no es público. Debes hacerlo público para permitir descargas.');
+        }
+        
+        // Listar archivos en el bucket
+        const { data: files, error: filesError } = await supabase
+          .storage
+          .from('tablas')
+          .list('', {
+            limit: 100,
+            offset: 0,
+            sortBy: { column: 'name', order: 'asc' }
+          });
+        
+        if (filesError) {
+          console.error('❌ Error listando archivos del bucket:', filesError);
+          console.error('Esto puede indicar problemas con permisos RLS');
+        } else {
+          console.log('📁 Archivos en bucket "tablas":', files.map(f => f.name));
+          
+          if (files.length === 0) {
+            console.error('❌ El bucket "tablas" está vacío. No hay archivos para descargar.');
+            console.error('📝 Debes subir los archivos carton_*.html al bucket');
+          }
+        }
+      }
+    }
     
     if (sampleError) {
       console.error('❌ Error al acceder a tabla codigos_bingo:', sampleError);
