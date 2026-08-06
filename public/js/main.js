@@ -116,10 +116,19 @@ async function consultarCodigoBingo(codigo) {
 // ==========================================
 // DESCARGA DESDE STORAGE
 // ==========================================
-async function descargarCarton(numeroCarton) {
+async function descargarCarton(numeroCarton, fileNameFromDB = null) {
   console.log('📥 Iniciando descarga del cartón:', numeroCarton);
-  const fileName = `carton_${numeroCarton}.html`;
-  console.log('📁 Archivo a descargar:', fileName);
+  
+  // Construir el nombre del archivo: usar url_tabla si está disponible, sino formato doble con guion
+  let fileName;
+  if (fileNameFromDB) {
+    fileName = fileNameFromDB;
+    console.log('📁 Usando nombre desde DB:', fileName);
+  } else {
+    fileName = `carton_${numeroCarton}-${numeroCarton}.html`;
+    console.log('📁 Construyendo nombre con formato doble:', fileName);
+  }
+  
   console.log('🗂️ Bucket de Storage: tablas');
   
   try {
@@ -354,6 +363,8 @@ downloadForm.addEventListener("submit", async (event) => {
     // Código encontrado - verificar si está expirado
     const codigoData = resultado[0];
     
+    console.log('📋 Datos del código:', codigoData);
+    
     // Aquí puedes agregar lógica para verificar expiración si tu tabla tiene un campo de fecha
     // Por ejemplo: if (codigoData.fecha_expiracion && new Date(codigoData.fecha_expiracion) < new Date()) { ... }
     
@@ -367,8 +378,17 @@ downloadForm.addEventListener("submit", async (event) => {
       return;
     }
     
+    // Intentar usar url_tabla si está disponible, sino usar formato doble con guion
+    let fileNameFromDB = null;
+    if (codigoData.url_tabla) {
+      // Extraer solo el nombre del archivo de la URL completa
+      // url_tabla podría tener formato: "carton_1-1.html" o ruta completa
+      fileNameFromDB = codigoData.url_tabla.split('/').pop();
+      console.log('📁 Nombre de archivo desde url_tabla:', fileNameFromDB);
+    }
+    
     setMessage("Descargando tu juego...", "success");
-    await descargarCarton(numeroCarton);
+    await descargarCarton(numeroCarton, fileNameFromDB);
     setMessage(`¡Listo! Tu cartón "${numeroCarton}" ha sido descargado.`, "success");
     
   } catch (err) {
