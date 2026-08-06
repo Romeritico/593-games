@@ -1,8 +1,11 @@
 // ==========================================
-// CONFIGURACIÓN DE SUPABASE
+// CONFIGURACIÓN DE SUPABASE - CLIENTE GLOBAL
 // ==========================================
-const SUPABASE_URL = "https://pchhkvsfnqmtclwjzkvc.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_sGq6SIuJg1f0PQut1BvLFg_CuPTh8TL";
+const SUPABASE_URL = 'https://pchhkvsfnqmtclwjzkvc.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_sGq6SIuJg1f0PQut1BvLFg_CuPTh8TL';
+
+// Inicialización global del cliente de Supabase
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ==========================================
 // SISTEMA DE SEGURIDAD CONTRA FUERZA BRUTA
@@ -82,26 +85,32 @@ function formatBlockTime(remainingMs) {
 }
 
 // ==========================================
-// CONSULTA A SUPABASE
+// CONSULTA A SUPABASE USANDO SDK
 // ==========================================
 async function consultarCodigoBingo(codigo) {
-  const url = `${SUPABASE_URL}/rest/v1/codigos_bingo?codigo_mostrador=eq.${encodeURIComponent(codigo)}&select=*`;
+  console.log('🔍 Iniciando consulta de código:', codigo);
+  console.log('📡 URL de Supabase:', SUPABASE_URL);
+  console.log('🔑 API Key (primeros 10 chars):', SUPABASE_ANON_KEY.substring(0, 10) + '...');
   
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'Content-Type': 'application/json'
+  try {
+    const { data, error } = await supabase
+      .from('codigos_bingo')
+      .select('*')
+      .eq('codigo_mostrador', codigo);
+    
+    console.log('📊 Resultado de consulta:', { data, error });
+    
+    if (error) {
+      console.error('❌ Error en consulta Supabase:', error);
+      throw new Error(`Error en consulta: ${error.message}`);
     }
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Error en consulta: ${response.status}`);
+    
+    console.log('✅ Consulta exitosa, registros encontrados:', data?.length || 0);
+    return data;
+  } catch (error) {
+    console.error('❌ Error consultando código:', error);
+    throw error;
   }
-  
-  const data = await response.json();
-  return data;
 }
 
 // ==========================================
@@ -109,18 +118,18 @@ async function consultarCodigoBingo(codigo) {
 // ==========================================
 async function descargarCarton(numeroCarton) {
   const fileName = `carton_${numeroCarton}.html`;
-  const storageUrl = `${SUPABASE_URL}/storage/v1/object/public/tablas/${fileName}`;
+  const { data, error } = await supabase
+    .storage
+    .from('tablas')
+    .download(fileName);
+  
+  if (error) {
+    throw new Error(`Error descargando archivo: ${error.message}`);
+  }
   
   try {
-    const response = await fetch(storageUrl);
-    
-    if (!response.ok) {
-      throw new Error(`Error descargando archivo: ${response.status}`);
-    }
-    
-    const blob = await response.blob();
-    
-    // Crear URL temporal y descargar con headers correctos
+    // Crear blob y descargar con headers correctos
+    const blob = new Blob([data], { type: 'text/html; charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.style.display = 'none';
@@ -243,10 +252,11 @@ function updateBlockCounter() {
 }
 
 // ==========================================
-// CARGA DE GALERÍA (Manteniendo función original)
+// CARGA DE GALERÍA (Manteniendo función original pero con fallback)
 // ==========================================
 async function loadGallery() {
   try {
+    // Intentar cargar desde la API original de Netlify
     const res = await fetch("/api/juegos");
     if (!res.ok) throw new Error("No se pudo cargar el catálogo.");
     const juegosList = await res.json();
@@ -262,7 +272,9 @@ async function loadGallery() {
       galleryGrid.appendChild(renderGameCard(juego, i));
     });
   } catch (err) {
-    galleryGrid.innerHTML = `<div class="gallery-empty">No se pudo cargar el catálogo. Intenta recargar la página.</div>`;
+    // Si falla la API, mostrar mensaje amigable
+    galleryGrid.innerHTML = `<div class="gallery-empty">Muy pronto vas a ver aquí nuestros juegos disponibles.</div>`;
+    console.log('Galería no disponible - esto es normal si no hay backend configurado');
   }
 }
 
@@ -289,11 +301,14 @@ downloadForm.addEventListener("submit", async (event) => {
   setLoading(true);
 
   try {
-    // Consultar código en Supabase
+    // Consultar código en Supabase usando el SDK
     const resultado = await consultarCodigoBingo(codigo);
+    
+    console.log('📋 Resultado de búsqueda:', resultado);
     
     // Verificar si se encontró el código
     if (!Array.isArray(resultado) || resultado.length === 0) {
+      console.log('⚠️ Código no encontrado en base de datos');
       // Código no encontrado - contar como intento fallido
       const attemptResult = recordFailedAttempt();
       
@@ -354,9 +369,120 @@ downloadForm.addEventListener("submit", async (event) => {
 });
 
 // ==========================================
+// PRUEBA DE CONEXIÓN CON SUPABASE
+// ==========================================
+async function probarConexionSupabase() {
+  console.log('🧪 Iniciando prueba de conexión con Supabase...');
+  
+  try {
+    // Primero verificar si el cliente se inicializó correctamente
+    if (!supabase) {
+      console.error('❌ Cliente de Supabase no inicializado');
+      return false;
+    }
+    
+    console.log('✅ Cliente de Supabase inicializado correctamente');
+    
+    // Intentar una consulta simple para verificar conexión
+    const { data, error } = await supabase
+      .from('codigos_bingo')
+      .select('count', { count: 'exact', head: true });
+    
+    if (error) {
+      console.error('❌ Error de conexión con Supabase:', error);
+      console.error('Detalles del error:', {
+        message: error.message,
+        code: error.code,
+        hint: error.hint,
+        details: error.details
+      });
+      
+      // Mensaje específico según el tipo de error
+      if (error.code === '42P01') {
+        console.error('❌ La tabla "codigos_bingo" no existe en la base de datos');
+      } else if (error.code === '42501') {
+        console.error('❌ Error de permisos (RLS). Verifica las políticas de acceso');
+      }
+      
+      return false;
+    }
+    
+    console.log('✅ Conexión exitosa con Supabase');
+    console.log('📊 Total de registros en codigos_bingo:', data);
+    return true;
+  } catch (error) {
+    console.error('❌ Error en prueba de conexión:', error);
+    console.error('Tipo de error:', error.constructor.name);
+    console.error('Mensaje:', error.message);
+    return false;
+  }
+}
+
+// ==========================================
+// VERIFICACIÓN DE ESTRUCTURA DE BASE DE DATOS
+// ==========================================
+async function verificarEstructuraBD() {
+  console.log('🔍 Verificando estructura de la base de datos...');
+  
+  try {
+    // Intentar listar todas las tablas disponibles
+    const { data: tables, error: tablesError } = await supabase
+      .rpc('get_tables');
+    
+    if (tablesError) {
+      console.log('⚠️ No se pudo listar tablas (posiblemente por permisos)');
+    } else {
+      console.log('📋 Tablas disponibles:', tables);
+    }
+    
+    // Verificar si la tabla codigos_bingo existe haciendo una consulta
+    const { data: sampleData, error: sampleError } = await supabase
+      .from('codigos_bingo')
+      .select('*')
+      .limit(1);
+    
+    if (sampleError) {
+      console.error('❌ Error al acceder a tabla codigos_bingo:', sampleError);
+      
+      if (sampleError.code === '42P01') {
+        console.error('❌ La tabla "codigos_bingo" NO existe. Debes crearla en Supabase.');
+        console.error('📝 Estructura sugerida:');
+        console.error('   - id (serial, primary key)');
+        console.error('   - codigo_mostrador (text, unique)');
+        console.error('   - numero_carton (text)');
+        console.error('   - cliente_id (integer, foreign key)');
+        console.error('   - fecha_expiracion (timestamp, opcional)');
+      }
+    } else {
+      console.log('✅ Tabla codigos_bingo existe y es accesible');
+      console.log('📊 Estructura de registro de ejemplo:', sampleData);
+    }
+    
+  } catch (error) {
+    console.error('❌ Error verificando estructura:', error);
+  }
+}
+
+// ==========================================
 // INICIALIZACIÓN
 // ==========================================
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  console.log('🚀 Aplicación iniciada');
+  console.log('🔧 Supabase URL:', SUPABASE_URL);
+  console.log('🔧 Supabase Key disponible:', !!SUPABASE_ANON_KEY);
+  console.log('🔧 Supabase Key (formato):', SUPABASE_ANON_KEY.substring(0, 20) + '...');
+  
+  // Probar conexión con Supabase
+  const conexionExitosa = await probarConexionSupabase();
+  
+  if (!conexionExitosa) {
+    console.warn('⚠️ No se pudo conectar con Supabase. Verifica las credenciales.');
+    await verificarEstructuraBD();
+  } else {
+    console.log('✅ Conexión establecida correctamente');
+    await verificarEstructuraBD();
+  }
+  
   loadGallery();
   updateUIForBlockState(); // Verificar estado de bloqueo al cargar
 });
