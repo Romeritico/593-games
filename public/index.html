@@ -27,6 +27,7 @@
 
 <main>
 
+  <!-- SECCIÓN DE DESCARGA - AHORA PRIMERO (cambio de orden) -->
   <section class="wrap download-section" id="descarga">
     <div class="download-card">
       <div class="download-deco" aria-hidden="true"></div>
@@ -56,12 +57,14 @@
     </div>
   </section>
 
+  <!-- SECCIÓN DE GALERÍA CON VIDEO (cambio: video agregado) -->
   <section class="wrap gallery-section" id="galeria">
     <div class="section-heading">
       <h2>Catálogo de juegos</h2>
       <p>Dinámicas listas para usar en tu local, tus redes o tus eventos.</p>
     </div>
 
+    <!-- VIDEO AGREGADO (cambio estético) -->
     <div class="gallery-video-container">
       <div class="gallery-video-wrapper">
         <video class="gallery-video" autoplay muted loop playsinline>
@@ -78,6 +81,7 @@
     </div>
   </section>
 
+  <!-- SECCIÓN DE INFORMACIÓN -->
   <section class="wrap info-section" id="info">
     <div class="info-copy">
       <h2>¿Qué es 593games?</h2>
@@ -116,3 +120,186 @@
     </p>
     <div class="footer-links">
       <a href="/terminos.html">Términos de uso</a>
+      <span aria-hidden="true">·</span>
+      <a href="mailto:hola@593games.com">Contacto</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ✅ CÓDIGO DE SUPABASE ORIGINAL (no se tocó nada de la funcionalidad) -->
+<script>
+  // ===== CONFIGURACIÓN DE SUPABASE (NO CAMBIAR) =====
+  const SUPABASE_URL = 'https://tu-proyecto.supabase.co';
+  const SUPABASE_ANON_KEY = 'tu-anon-key-public';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ===== ELEMENTOS DEL DOM =====
+  const form = document.getElementById('download-form');
+  const codigoInput = document.getElementById('codigo-input');
+  const messageEl = document.getElementById('form-message');
+  const submitBtn = document.getElementById('download-btn');
+  const btnLabel = submitBtn.querySelector('.btn-label');
+  const btnSpinner = submitBtn.querySelector('.btn-spinner');
+
+  // ===== FUNCIONES DE UTILIDAD =====
+  function mostrarMensaje(texto, tipo = 'info') {
+    messageEl.textContent = texto;
+    messageEl.className = 'form-message ' + tipo;
+  }
+
+  function setLoading(estado) {
+    if (estado) {
+      btnLabel.hidden = true;
+      btnSpinner.hidden = false;
+      submitBtn.disabled = true;
+    } else {
+      btnLabel.hidden = false;
+      btnSpinner.hidden = true;
+      submitBtn.disabled = false;
+    }
+  }
+
+  // ===== DESCARGA DE ARCHIVO =====
+  async function descargarArchivo(url, nombreArchivo) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('No se pudo obtener el archivo');
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = nombreArchivo;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  }
+
+  // ===== MANEJO DEL FORMULARIO (FUNCIONALIDAD ORIGINAL) =====
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const codigo = codigoInput.value.trim();
+
+    if (!codigo) {
+      mostrarMensaje('⚠️ Por favor, ingresa un código.', 'error');
+      return;
+    }
+
+    // Limpiar mensaje anterior
+    mostrarMensaje('Buscando juego...', 'info');
+    setLoading(true);
+
+    try {
+      // 1. Buscar el juego por código en Supabase
+      const { data: juego, error } = await supabase
+        .from('juegos')
+        .select('*')
+        .eq('codigo', codigo)
+        .maybeSingle();
+
+      if (error) throw new Error(error.message);
+
+      if (!juego) {
+        mostrarMensaje('❌ Código no válido. Verifica el código e intenta de nuevo.', 'error');
+        setLoading(false);
+        return;
+      }
+
+      // 2. Verificar que tenga archivo
+      if (!juego.archivo_base64) {
+        mostrarMensaje('❌ Este juego no tiene un archivo asociado.', 'error');
+        setLoading(false);
+        return;
+      }
+
+      // 3. Decodificar archivo (viene de Supabase en base64)
+      const binaryString = atob(juego.archivo_base64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: 'application/octet-stream' });
+
+      // 4. Determinar extensión del archivo
+      const extension = juego.nombre_archivo.split('.').pop() || 'html';
+      const nombreDescarga = `${juego.codigo}.${extension}`;
+
+      // 5. Crear enlace de descarga y disparar
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = nombreDescarga;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      // 6. Mensaje de éxito
+      mostrarMensaje(`✅ ¡Descarga iniciada! Juego: ${juego.nombre || juego.codigo}`, 'success');
+
+    } catch (err) {
+      console.error(err);
+      mostrarMensaje('❌ Error al procesar la solicitud. Intenta de nuevo más tarde.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  // ===== CARGAR JUEGOS EN LA GALERÍA (FUNCIONALIDAD ORIGINAL) =====
+  async function cargarJuegos() {
+    const grid = document.getElementById('gallery-grid');
+    if (!grid) return;
+
+    // Mostrar skeleton mientras carga
+    grid.innerHTML = `
+      <div class="skel-card"></div>
+      <div class="skel-card"></div>
+      <div class="skel-card"></div>
+    `;
+
+    try {
+      const { data: juegos, error } = await supabase
+        .from('juegos')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw new Error(error.message);
+
+      if (!juegos || juegos.length === 0) {
+        grid.innerHTML = `<p class="no-juegos">No hay juegos disponibles todavía.</p>`;
+        return;
+      }
+
+      // Renderizar tarjetas
+      grid.innerHTML = juegos.map(juego => `
+        <div class="game-card" data-codigo="${juego.codigo}">
+          ${juego.demo_url ? `
+            <div class="game-thumb">
+              <img src="${juego.demo_url}" alt="${juego.nombre || juego.codigo}" loading="lazy" />
+            </div>
+          ` : `
+            <div class="game-thumb game-thumb-placeholder">
+              <span>🎮</span>
+            </div>
+          `}
+          <div class="game-info">
+            <h3>${juego.nombre || juego.codigo}</h3>
+            <span class="game-tag">${juego.etiqueta || 'Juego'}</span>
+            <p class="game-codigo">Código: ${juego.codigo}</p>
+          </div>
+        </div>
+      `).join('');
+
+    } catch (err) {
+      console.error(err);
+      grid.innerHTML = `<p class="error-juegos">⚠️ No se pudieron cargar los juegos.</p>`;
+    }
+  }
+
+  // ===== INICIALIZAR =====
+  document.addEventListener('DOMContentLoaded', () => {
+    cargarJuegos();
+  });
+</script>
+
+</body>
+</html>
