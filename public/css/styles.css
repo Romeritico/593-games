@@ -90,6 +90,12 @@ h1, h2, h3 {
   gap: 18px;
 }
 
+/* ===== NUEVO: Centrar el texto del brand ===== */
+.brand {
+  text-align: center;
+  width: 100%;
+}
+
 .brand-mark {
   font-family: var(--font-pixel);
   font-weight: normal;
@@ -129,17 +135,22 @@ h1, h2, h3 {
   paint-order: stroke fill;
 }
 
+/* ===== NUEVO: Centrar el subtítulo ===== */
 .brand-sub {
-  margin: 10px 0 0;
+  margin: 10px auto 0;
   color: rgba(254, 252, 232, 0.86);
   font-size: clamp(1rem, 2vw, 1.15rem);
   font-weight: 500;
   max-width: 34ch;
+  text-align: center;
+  display: block;
 }
 
+/* ===== NUEVO: Centrar el badge ===== */
 .badge-safe {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   background: rgba(254, 252, 232, 0.95);
   color: var(--teal-deep);
@@ -149,6 +160,7 @@ h1, h2, h3 {
   border-radius: 999px;
   box-shadow: var(--shadow-soft);
   white-space: nowrap;
+  margin: 0 auto;
 }
 
 /* ---------- Gallery ---------- */
