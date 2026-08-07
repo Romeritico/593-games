@@ -107,49 +107,102 @@ form.addEventListener('submit', async (e) => {
   }
 });
 
-// ===== CARGAR JUEGOS EN LA GALERÍA - AHORA SIEMPRE MUESTRA EL BOTÓN DE YOUTUBE =====
+// ===== CARGAR JUEGOS EN LA GALERÍA (CONSULTA ACTIVA PERO MUESTRA YOUTUBE) =====
 async function cargarJuegos() {
   const grid = document.getElementById('gallery-grid');
   if (!grid) return;
 
-  // Mostrar siempre el mensaje con el botón de YouTube
+  // Mostrar skeletons mientras carga
   grid.innerHTML = `
-    <div class="youtube-message" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
-      <div style="font-size: 4rem; margin-bottom: 20px;">🎮</div>
-      <h3 style="color: #2d3436; font-family: 'Poppins', sans-serif; font-size: 1.8rem; margin-bottom: 15px; font-weight: 700;">
-        ¡Pronto tendremos juegos disponibles!
-      </h3>
-      <p style="color: #636e72; font-family: 'Inter', sans-serif; font-size: 1.1rem; max-width: 500px; margin: 0 auto 30px auto; line-height: 1.6;">
-        En nuestro canal de YouTube puedes ver la transmisión en vivo de nuestros juegos
-      </p>
-      <a href="https://www.youtube.com/@SUPERBINGOEC" 
-         target="_blank" 
-         rel="noopener noreferrer"
-         style="
-           display: inline-block;
-           background: #ff0000;
-           color: white;
-           font-family: 'Poppins', sans-serif;
-           font-size: 1.1rem;
-           font-weight: 600;
-           padding: 16px 40px;
-           border-radius: 50px;
-           text-decoration: none;
-           transition: all 0.3s ease;
-           box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
-         "
-         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 25px rgba(255, 0, 0, 0.4)';"
-         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(255, 0, 0, 0.3)';">
-        <span style="margin-right: 10px;">▶</span> Visitar canal
-      </a>
-      <p style="color: #b2bec3; font-family: 'Inter', sans-serif; font-size: 0.9rem; margin-top: 20px;">
-        @SUPERBINGOEC
-      </p>
-    </div>
+    <div class="skel-card"></div>
+    <div class="skel-card"></div>
+    <div class="skel-card"></div>
   `;
 
-  // La conexión a Supabase sigue activa para el formulario de descarga
-  console.log('✅ Supabase conectado para descargas');
+  try {
+    // HACEMOS LA CONSULTA PARA MANTENER LA CONEXIÓN ACTIVA
+    const { data: juegos, error } = await supabase
+      .from('juegos')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (error) throw new Error(error.message);
+
+    // SIEMPRE mostramos el mensaje de YouTube (con o sin juegos)
+    grid.innerHTML = `
+      <div class="youtube-message" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+        <div style="font-size: 4rem; margin-bottom: 20px;">🎮</div>
+        <h3 style="color: #2d3436; font-family: 'Poppins', sans-serif; font-size: 1.8rem; margin-bottom: 15px; font-weight: 700;">
+          ¡Pronto tendremos juegos disponibles!
+        </h3>
+        <p style="color: #636e72; font-family: 'Inter', sans-serif; font-size: 1.1rem; max-width: 500px; margin: 0 auto 30px auto; line-height: 1.6;">
+          En nuestro canal de YouTube puedes ver la transmisión en vivo de nuestros juegos
+        </p>
+        <a href="https://www.youtube.com/@SUPERBINGOEC" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           style="
+             display: inline-block;
+             background: #ff0000;
+             color: white;
+             font-family: 'Poppins', sans-serif;
+             font-size: 1.1rem;
+             font-weight: 600;
+             padding: 16px 40px;
+             border-radius: 50px;
+             text-decoration: none;
+             transition: all 0.3s ease;
+             box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+           "
+           onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 25px rgba(255, 0, 0, 0.4)';"
+           onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(255, 0, 0, 0.3)';">
+          <span style="margin-right: 10px;">▶</span> Visitar canal
+        </a>
+        <p style="color: #b2bec3; font-family: 'Inter', sans-serif; font-size: 0.9rem; margin-top: 20px;">
+          @SUPERBINGOEC
+        </p>
+      </div>
+    `;
+
+  } catch (err) {
+    console.error(err);
+    // Si hay error, igual mostramos el mensaje de YouTube
+    grid.innerHTML = `
+      <div class="youtube-message" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px;">
+        <div style="font-size: 4rem; margin-bottom: 20px;">🎮</div>
+        <h3 style="color: #2d3436; font-family: 'Poppins', sans-serif; font-size: 1.8rem; margin-bottom: 15px; font-weight: 700;">
+          ¡Pronto tendremos juegos disponibles!
+        </h3>
+        <p style="color: #636e72; font-family: 'Inter', sans-serif; font-size: 1.1rem; max-width: 500px; margin: 0 auto 30px auto; line-height: 1.6;">
+          En nuestro canal de YouTube puedes ver la transmisión en vivo de nuestros juegos
+        </p>
+        <a href="https://www.youtube.com/@SUPERBINGOEC" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           style="
+             display: inline-block;
+             background: #ff0000;
+             color: white;
+             font-family: 'Poppins', sans-serif;
+             font-size: 1.1rem;
+             font-weight: 600;
+             padding: 16px 40px;
+             border-radius: 50px;
+             text-decoration: none;
+             transition: all 0.3s ease;
+             box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+           "
+           onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 25px rgba(255, 0, 0, 0.4)';"
+           onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(255, 0, 0, 0.3)';">
+          <span style="margin-right: 10px;">▶</span> Visitar canal
+        </a>
+        <p style="color: #b2bec3; font-family: 'Inter', sans-serif; font-size: 0.9rem; margin-top: 20px;">
+          @SUPERBINGOEC
+        </p>
+      </div>
+    `;
+  }
 }
 
 // ===== INICIALIZAR =====
