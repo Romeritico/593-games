@@ -27,19 +27,7 @@
 
 <main>
 
-  <section class="wrap gallery-section" id="galeria">
-    <div class="section-heading">
-      <h2>Catálogo de juegos</h2>
-      <p>Dinámicas listas para usar en tu local, tus redes o tus eventos.</p>
-    </div>
-
-    <div id="gallery-grid" class="gallery-grid" aria-live="polite">
-      <div class="skel-card"></div>
-      <div class="skel-card"></div>
-      <div class="skel-card"></div>
-    </div>
-  </section>
-
+  <!-- SECCIÓN DE DESCARGA - AHORA PRIMERO -->
   <section class="wrap download-section" id="descarga">
     <div class="download-card">
       <div class="download-deco" aria-hidden="true"></div>
@@ -69,6 +57,31 @@
     </div>
   </section>
 
+  <!-- SECCIÓN DE GALERÍA CON VIDEO -->
+  <section class="wrap gallery-section" id="galeria">
+    <div class="section-heading">
+      <h2>Catálogo de juegos</h2>
+      <p>Dinámicas listas para usar en tu local, tus redes o tus eventos.</p>
+    </div>
+
+    <!-- VIDEO AGREGADO -->
+    <div class="gallery-video-container">
+      <div class="gallery-video-wrapper">
+        <video class="gallery-video" autoplay muted loop playsinline>
+          <source src="/videos/opening-video.mp4" type="video/mp4">
+          Tu navegador no soporta videos HTML5.
+        </video>
+      </div>
+    </div>
+
+    <div id="gallery-grid" class="gallery-grid" aria-live="polite">
+      <div class="skel-card"></div>
+      <div class="skel-card"></div>
+      <div class="skel-card"></div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN DE INFORMACIÓN -->
   <section class="wrap info-section" id="info">
     <div class="info-copy">
       <h2>¿Qué es 593games?</h2>
@@ -113,6 +126,7 @@
   </div>
 </footer>
 
+<!-- ✅ MISMO SCRIPT EXTERNO QUE FUNCIONA -->
 <script type="module" src="/js/main.js"></script>
 </body>
 </html>
