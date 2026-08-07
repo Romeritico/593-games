@@ -1,7 +1,7 @@
 /* ============================================
-   593games — estilos base
-   Paleta: verde azulado #0D9488, naranja #F97316, crema #FEFCE8
-   ============================================ */
+  593games — estilos base
+  Paleta: verde azulado #0D9488, naranja #F97316, crema #FEFCE8
+  ============================================ */
 
 :root {
   --teal: #0d9488;
@@ -19,6 +19,7 @@
   --radius: 12px;
   --font-display: "Poppins", "Segoe UI", sans-serif;
   --font-body: "Inter", "Segoe UI", sans-serif;
+  --font-pixel: "Press Start 2P", "Segoe UI", monospace;
 }
 
 * {
@@ -82,24 +83,31 @@ h1, h2, h3 {
 .header-inner {
   position: relative;
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 18px;
 }
 
 .brand-mark {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.6rem, 6vw, 4rem);
-  line-height: 1;
+  font-family: var(--font-pixel);
+  font-weight: normal;
+  font-size: clamp(1.5rem, 4.5vw, 2.4rem);
+  line-height: 1.4;
   color: var(--cream);
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 0 6px rgba(254, 252, 232, 0.55),
+    0 0 14px rgba(249, 115, 22, 0.65),
+    0 0 26px rgba(13, 148, 136, 0.55);
 }
 
 .brand-mark span {
   color: var(--orange);
+  -webkit-text-stroke: 4px #ffffff;
+  paint-order: stroke fill;
 }
 
 .brand-sub {
@@ -363,46 +371,52 @@ h1, h2, h3 {
 .codigo-input:focus {
   outline: none;
   border-color: var(--teal);
-  box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.15);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+}
+
+.codigo-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-download {
-  position: relative;
+  width: 100%;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.05rem;
-  color: #fff;
-  background: var(--orange);
+  font-size: 1.1rem;
+  padding: 16px 24px;
   border: none;
   border-radius: var(--radius);
-  padding: 18px 24px;
+  background: var(--orange);
+  color: #fff;
   cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: background 0.2s ease, transform 0.15s ease;
 }
 
-.btn-download:hover {
+.btn-download:hover:not(:disabled) {
   background: var(--orange-dark);
+  transform: translateY(-2px);
 }
 
-.btn-download:active {
-  transform: scale(0.98);
+.btn-download:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-download:disabled {
-  opacity: 0.75;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
 .btn-spinner {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2.5px solid rgba(255, 255, 255, 0.4);
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
+  border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 
@@ -412,41 +426,40 @@ h1, h2, h3 {
 
 .form-message {
   min-height: 24px;
-  margin-top: 16px;
-  font-weight: 600;
   font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 8px;
 }
 
 .form-message.error {
-  color: #b3401d;
+  color: #dc2626;
 }
 
 .form-message.success {
-  color: var(--teal-deep);
+  color: var(--teal-dark);
 }
 
 .download-hint {
-  margin: 22px 0 0;
-  color: #7b8f89;
-  font-size: 0.85rem;
+  margin: 20px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 /* ---------- Info section ---------- */
 
 .info-section {
-  padding: 40px 0 80px;
-  display: grid;
-  gap: 40px;
+  padding: 70px 0 60px;
 }
 
 .info-copy {
-  max-width: 760px;
-  margin: 0 auto;
+  max-width: 680px;
+  margin: 0 auto 40px;
   text-align: center;
 }
 
 .info-copy h2 {
-  font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+  font-size: clamp(1.6rem, 3vw, 2rem);
   margin-bottom: 16px;
 }
 
@@ -457,88 +470,101 @@ h1, h2, h3 {
 }
 
 .info-pillars {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  max-width: 720px;
-  margin: 0 auto;
-}
-
-@media (max-width: 640px) {
-  .info-pillars {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
 }
 
 .pillar {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 26px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
   text-align: center;
-  box-shadow: var(--shadow-soft);
-  transition: transform 0.2s ease;
-}
-
-.pillar:hover {
-  transform: translateY(-4px);
+  min-width: 100px;
 }
 
 .pillar-icon {
-  display: block;
-  font-size: 2rem;
-  margin-bottom: 10px;
+  font-size: 2.5rem;
+  line-height: 1;
 }
 
 .pillar p {
   margin: 0;
-  font-weight: 700;
-  color: var(--teal-deep);
-  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
 }
 
 /* ---------- Footer ---------- */
 
 .site-footer {
   background: var(--teal-deep);
-  color: rgba(254, 252, 232, 0.9);
-  padding: 40px 0;
+  color: rgba(254, 252, 232, 0.88);
+  padding: 40px 0 50px;
 }
 
 .footer-inner {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  gap: 16px;
   text-align: center;
 }
 
 .footer-copy {
-  font-weight: 700;
   font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
   margin: 0;
-  color: #fff;
 }
 
 .footer-disclaimer {
-  max-width: 780px;
-  margin: 0 auto;
-  font-size: 0.82rem;
+  max-width: 600px;
+  font-size: 0.85rem;
   line-height: 1.6;
-  color: rgba(254, 252, 232, 0.72);
+  margin: 0;
+  opacity: 0.85;
 }
 
 .footer-links {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  font-size: 0.88rem;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
 }
 
 .footer-links a {
-  color: var(--cream);
+  color: rgba(254, 252, 232, 0.9);
   text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .footer-links a:hover {
-  text-decoration: underline;
+  color: var(--orange);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 768px) {
+  .site-header {
+    padding: 44px 0 52px;
+  }
+  
+  .download-card {
+    padding: 32px 24px 28px;
+  }
+  
+  .info-pillars {
+    gap: 24px;
+  }
+  
+  .pillar {
+    min-width: 80px;
+  }
+  
+  .pillar-icon {
+    font-size: 2rem;
+  }
 }
