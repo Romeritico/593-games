@@ -116,19 +116,10 @@ async function consultarCodigoBingo(codigo) {
 // ==========================================
 // DESCARGA DESDE STORAGE
 // ==========================================
-async function descargarCarton(numeroCarton, fileNameFromDB = null) {
+async function descargarCarton(numeroCarton) {
   console.log('📥 Iniciando descarga del cartón:', numeroCarton);
-  
-  // Construir el nombre del archivo: usar url_tabla si está disponible, sino formato doble con guion
-  let fileName;
-  if (fileNameFromDB) {
-    fileName = fileNameFromDB;
-    console.log('📁 Usando nombre desde DB:', fileName);
-  } else {
-    fileName = `carton_${numeroCarton}-${numeroCarton}.html`;
-    console.log('📁 Construyendo nombre con formato doble:', fileName);
-  }
-  
+  const fileName = `carton_${numeroCarton}.html`;
+  console.log('📁 Archivo a descargar:', fileName);
   console.log('🗂️ Bucket de Storage: tablas');
   
   try {
@@ -173,7 +164,8 @@ async function descargarCarton(numeroCarton, fileNameFromDB = null) {
     }
     
     console.log('✅ Archivo descargado exitosamente');
-    
+  
+  try {
     // Crear blob y descargar con headers correctos
     const blob = new Blob([data], { type: 'text/html; charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
@@ -192,7 +184,6 @@ async function descargarCarton(numeroCarton, fileNameFromDB = null) {
     document.body.removeChild(a);
     
     return { success: true };
-    
   } catch (error) {
     console.error('Error en descarga:', error);
     throw error;
@@ -363,8 +354,6 @@ downloadForm.addEventListener("submit", async (event) => {
     // Código encontrado - verificar si está expirado
     const codigoData = resultado[0];
     
-    console.log('📋 Datos del código:', codigoData);
-    
     // Aquí puedes agregar lógica para verificar expiración si tu tabla tiene un campo de fecha
     // Por ejemplo: if (codigoData.fecha_expiracion && new Date(codigoData.fecha_expiracion) < new Date()) { ... }
     
@@ -378,29 +367,8 @@ downloadForm.addEventListener("submit", async (event) => {
       return;
     }
     
-    // Intentar usar url_tabla si está disponible, sino usar formato doble con guion
-    let fileNameFromDB = null;
-    if (codigoData.url_tabla) {
-      console.log('📁 url_tabla original:', codigoData.url_tabla);
-      
-      // Detectar si url_tabla tiene el formato incorrecto "https://supabase.co_X-X.html"
-      if (codigoData.url_tabla.includes('supabase.co_')) {
-        // Extraer el número después de "supabase.co_"
-        const numeroExtraido = codigoData.url_tabla.split('supabase.co_')[1];
-        if (numeroExtraido) {
-          // Construir el nombre correcto del archivo
-          fileNameFromDB = `carton_${numeroExtraido}`;
-          console.log('📁 Nombre corregido desde url_tabla:', fileNameFromDB);
-        }
-      } else {
-        // Si tiene formato normal, extraer solo el nombre del archivo
-        fileNameFromDB = codigoData.url_tabla.split('/').pop();
-        console.log('📁 Nombre normal desde url_tabla:', fileNameFromDB);
-      }
-    }
-    
     setMessage("Descargando tu juego...", "success");
-    await descargarCarton(numeroCarton, fileNameFromDB);
+    await descargarCarton(numeroCarton);
     setMessage(`¡Listo! Tu cartón "${numeroCarton}" ha sido descargado.`, "success");
     
   } catch (err) {
